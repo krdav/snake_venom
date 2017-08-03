@@ -1,0 +1,40 @@
+#!/bin/sh
+### Note: No commands may be executed until after the #PBS lines
+### Account information
+#PBS -W group_list=cu_10020 -A cu_10020
+### Job name (comment out the next line to get the name of the script used as the job name)
+#PBS -N KD_job
+### Output files (comment outa the next 2 lines to get the job name used instead)
+##PBS -e /home/projects/cu_10049/data/NGS_folder/TargetB_s134891/LN/DM807/VH/289-290_merged/sub1_log.err
+##PBS -o /home/projects/cu_10049/data/NGS_folder/TargetB_s134891/LN/DM807/VH/289-290_merged/sub1_log.out
+### Email: no (n)
+#PBS -M n
+### Make the job rerunable (y)
+#PBS -r y
+### Number of nodes
+#PBS -l nodes=1:ppn=@fatORthinNODE@
+#PBS -l walltime=200:00:00
+echo This is the STDOUT stream from a PBS Torque submission script.
+# Go to the directory from where the job was submitted (initial directory is $HOME)
+echo Working directory is $PBS_O_WORKDIR
+cd $PBS_O_WORKDIR
+
+# Load user Bash settings:
+source /home/projects/cu_10049/shared_utils/.bash_profile
+
+module unload anaconda3/4.0.0
+module load anaconda2/4.0.0
+#rm -rf /tmp/partis
+rm -rf /tmp/$PBS_JOBID
+mkdir /tmp/$PBS_JOBID
+
+base='@BASENAME@'
+
+
+python /home/projects/cu_10020/apps/partis/bin/partis partition --species mouse --print-cluster-annotations --n-procs 32 --workdir /tmp/$PBS_JOBID/partis --locus @LOCUS@ --infname ${base}.fa --outfname ${base}_partitions.csv &> ${base}_partitioning.log
+
+# python /home/projects/cu_10049/apps/partis/bin/partis partition --species mouse --skip-unproductive --also-remove-duplicate-sequences-with-different-lengths --print-cluster-annotations --n-procs @NPROC@ --workdir /tmp/$PBS_JOBID/partis --locus igh --infname ${base}.fa --outfname ${base}_partitions.csv &> ${base}_partitioning.log
+
+
+
+
